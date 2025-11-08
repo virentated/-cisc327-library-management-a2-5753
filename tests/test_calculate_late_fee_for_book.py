@@ -1,15 +1,14 @@
 import pytest
-import library_service as ls
+import services.library_service as ls
 import database as db
+import datetime
 
 def test_r5_no_overdue_fee_is_zero():
     # Assuming the data given is of a parton without book being overdue, it results in no fees.
     result = ls.calculate_late_fee_for_book("123456", 1)
     assert result["fee_amount"] == 0.0
     assert result["days_overdue"] == 0
-
-import datetime
-import library_service as ls
+    
 
 def test_r5_overdue_five_days_half_dollar_each(monkeypatch):
     """5 days overdue → 5 * $0.50 = $2.50"""

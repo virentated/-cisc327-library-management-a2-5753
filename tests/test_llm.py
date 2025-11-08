@@ -1,6 +1,6 @@
 import pytest
 from datetime import datetime, timedelta
-import library_service as ls
+import services.library_service as ls
 
 
 # ----------------------------------------------------------------------

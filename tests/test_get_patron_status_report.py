@@ -1,5 +1,5 @@
 import pytest
-import library_service as ls
+import services.library_service as ls
 
 def test_r7_status_has_required_keys():
     """Ensure report returns all expected fields for a valid patron."""

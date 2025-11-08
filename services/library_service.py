@@ -333,3 +333,61 @@ def get_patron_status_report(patron_id: str) -> Dict:
         'borrow_count': borrow_count,
         'history': history,
     }
+
+# === Payment Processing Functions
+from services.payment_service import PaymentGateway
+
+def pay_late_fees(patron_id: str, book_id: int, payment_gateway: PaymentGateway):
+    """
+    Process late fee payment for a specific patron and book.
+    Uses stubs for fee calculation and mocks for gateway interactions.
+    """
+    # Validate patron ID
+    if not patron_id or not patron_id.isdigit() or len(patron_id) != 6:
+        return {"success": False, "message": "Invalid patron ID."}
+
+    # Calculate fee (stubbed in tests)
+    fee_info = calculate_late_fee_for_book(patron_id, book_id)
+    amount = fee_info.get("fee_amount", 0.0)
+
+    if amount <= 0:
+        return {"success": False, "message": "No late fee to pay."}
+
+    # Validate book existence (stubbed in tests)
+    book = get_book_by_id(book_id)
+    if not book:
+        return {"success": False, "message": "Book not found."}
+
+    # Process payment using external gateway (mocked in tests)
+    try:
+        result = payment_gateway.process_payment(patron_id, amount)
+    except Exception as e:
+        return {"success": False, "message": f"Payment failed: {str(e)}"}
+
+    if result.get("status") == "success":
+        return {"success": True, "transaction_id": result.get("transaction_id"),
+                "message": f"Late fee of ${amount:.2f} paid successfully."}
+    else:
+        reason = result.get("reason", "Unknown error")
+        return {"success": False, "message": f"Payment declined: {reason}"}
+
+
+def refund_late_fee_payment(transaction_id: str, amount: float, payment_gateway: PaymentGateway):
+    """
+    Refund a previous late fee payment.
+    """
+    if not transaction_id or not transaction_id.startswith("TXN"):
+        return {"success": False, "message": "Invalid transaction ID."}
+    if amount <= 0 or amount > 15.0:
+        return {"success": False, "message": "Invalid refund amount."}
+
+    try:
+        result = payment_gateway.refund_payment(transaction_id, amount)
+    except Exception as e:
+        return {"success": False, "message": f"Refund failed: {str(e)}"}
+
+    if result.get("status") == "refunded":
+        return {"success": True, "message": f"Refund of ${amount:.2f} successful."}
+    else:
+        reason = result.get("reason", "Unknown error")
+        return {"success": False, "message": f"Refund failed: {reason}"}

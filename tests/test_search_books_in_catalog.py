@@ -1,5 +1,5 @@
 import pytest
-import library_service as ls
+import services.library_service as ls
 import database as db
 
 def test_r6_search_title_partial_match():
