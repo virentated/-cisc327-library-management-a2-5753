@@ -15,6 +15,9 @@ jobs:
     name: Run Pytest on ${{ matrix.os }} with Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
 
+    env:
+      PYTHONPATH: ${{ github.workspace }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -29,13 +32,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install pytest
+          pip install pytest pytest-mock pytest-cov
 
       - name: Initialize and populate database
-        
         run: |
           python -c "import database; database.init_database(); database.add_sample_data(); print('Database initialized')"
 
-      - name: Run tests
-       
-        run: pytest -v
+      - name: Run tests with coverage
+        run: pytest --cov=services --cov-report=term-missing -v
